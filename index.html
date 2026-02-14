@@ -3,52 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video Simple</title>
+    <title>WebRTC Local Stream</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; margin: 0; }
-        .video-container { width: 80%; max-width: 960px; background: #000; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        video { width: 100%; height: auto; display: block; }
-        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        body { 
+            font-family: sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            background-color: #f0f2f5; 
+        }
+        video {
+            width: 80vw;
+            max-width: 600px;
+            height: auto;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #eee;
+        }
+        h1 { 
+            color: #2c3e50; 
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover { 
+            background-color: #218838; 
+        }
+        .message { 
+            margin-top: 15px; 
+            color: #e74c3c; 
+            font-weight: bold; 
+        }
     </style>
 </head>
 <body>
-    <div class="video-container">
-        <h1>Mi Transmisión de Video</h1>
-        <video id="videoPlayer" controls></video>
-    </div>
-
-    <!-- Incluir hls.js si quieres soporte HLS adaptativo en navegadores que no lo tienen nativamente -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <h1>Tu Video en Vivo (Local)</h1>
+    <video id="localVideo" autoplay playsinline controls></video>
+    <button id="startButton">Iniciar Cámara</button>
+    <p class="message" id="errorMessage"></p>
 
     <script>
-        const video = document.getElementById('videoPlayer');
-        // Esta URL sería proporcionada por tu backend. Es la URL al archivo .m3u8 de tu transmisión HLS.
-        const videoSrc = 'https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8'; // Ejemplo de URL HLS de prueba
+        const localVideo = document.getElementById('localVideo');
+        const startButton = document.getElementById('startButton');
+        const errorMessage = document.getElementById('errorMessage');
 
-        if (Hls.isSupported()) {
-            const hls = new Hls();
-            hls.loadSource(videoSrc);
-            hls.attachMedia(video);
-            hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                video.play();
-            });
-        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-            // Soporte nativo de HLS en el navegador (principalmente Safari)
-            video.src = videoSrc;
-            video.addEventListener('loadedmetadata', function() {
-                video.play();
-            });
-        } else {
-            console.error('El navegador no soporta HLS');
-            alert('Lo siento, tu navegador no soporta la reproducción de este video.');
+        let localStream;
+
+        startButton.addEventListener('click', startLocalStream);
+
+        async function startLocalStream() {
+            try {
+                // Solicitar acceso a la cámara y micrófono
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                // Asignar el stream al elemento de video
+                localVideo.srcObject = localStream;
+                startButton.disabled = true; // Deshabilitar el botón una vez que inicia
+                errorMessage.textContent = ''; // Limpiar cualquier mensaje de error anterior
+            } catch (error) {
+                console.error('Error al acceder a la cámara y micrófono:', error);
+                errorMessage.textContent = 'Error: No se pudo acceder a la cámara o micrófono. Asegúrate de dar permisos.';
+            }
         }
     </script>
 </body>
-
 </html>
-
-
-
-
-
-
