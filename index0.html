@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de Video Simple</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #f0f0f0; margin: 0; }
+        .video-container { width: 80%; max-width: 960px; background: #000; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        video { width: 100%; height: auto; display: block; }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="video-container">
+        <h1>Mi Transmisión de Video</h1>
+        <video id="videoPlayer" controls></video>
+    </div>
+
+    <!-- Incluir hls.js si quieres soporte HLS adaptativo en navegadores que no lo tienen nativamente -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+    <script>
+        const video = document.getElementById('videoPlayer');
+        // Esta URL sería proporcionada por tu backend. Es la URL al archivo .m3u8 de tu transmisión HLS.
+        const videoSrc = 'https://deportes.ksdjugfsddeports.com:9092/MTUyLjE2Ni4xMjMuMjAy/1_.m3u8?token=m7-Ez6zDxIHObkRl7-96hw&expires=1771095063'; // Ejemplo de URL HLS de prueba
+
+        if (Hls.isSupported()) {
+            const hls = new Hls();
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                video.play();
+            });
+        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Soporte nativo de HLS en el navegador (principalmente Safari)
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', function() {
+                video.play();
+            });
+        } else {
+            console.error('El navegador no soporta HLS');
+            alert('Lo siento, tu navegador no soporta la reproducción de este video.');
+        }
+    </script>
+</body>
+</html>
